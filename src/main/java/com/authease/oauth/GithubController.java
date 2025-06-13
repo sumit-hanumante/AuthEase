@@ -5,9 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
- * Placeholder controller demonstrating GitHub OAuth endpoints.
+ * Controller redirecting to the actual Spring Security OAuth2 login path.
  */
 @RestController
 @RequestMapping("/oauth/github")
@@ -19,8 +20,8 @@ public class GithubController {
      * @return message describing the endpoint
      */
     @GetMapping("/login")
-    public Map<String, String> login() {
-        return Map.of("message", "GitHub OAuth login endpoint");
+    public RedirectView login() {
+        return new RedirectView("/oauth2/authorization/github");
     }
 
     /**

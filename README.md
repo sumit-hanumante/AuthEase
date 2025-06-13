@@ -1,40 +1,53 @@
 # AuthEase
 
-AuthEase is a simple authentication and authorization service built with **Spring Boot**. It demonstrates username/password registration and login and includes placeholder endpoints for Google, Apple and GitHub OAuth flows.
+AuthEase is a small authentication service built with **Spring Boot**. It exposes simple username/password registration and login endpoints and supports social login using Google, Apple and GitHub via OAuth2.
 
-The service keeps data in memory for demonstration purposes. In a real deployment you would integrate a database and replace the OAuth placeholders with proper flows.
+The application stores users in memory for demonstration purposes. In a production deployment you should plug in a persistent database and properly secure the OAuth credentials.
 
 ## Features
 
 - Register and login with a username and password
-- JWT based access tokens
-- Placeholder routes for Google, Apple and GitHub OAuth
+- Issue JWT access tokens
+- OAuth2 login with Google, Apple and GitHub
 
 ## Requirements
 
-- Java 17+
+- Java 17 or higher
 - Maven 3+
 
 ## Building and Running
 
-Follow these steps to build and start the service locally.
-
-1. Build the project using Maven:
+1. Build the project
 
 ```bash
 mvn package
 ```
 
-2. Run the generated jar:
+2. Run the generated jar
 
 ```bash
 java -jar target/authease-0.0.1-SNAPSHOT.jar
 ```
 
-The API will start on `http://localhost:8080` by default.
+The API will be available on `http://localhost:8080`.
 
-You can then interact with the endpoints using `curl` or any HTTP client.
-For example to register a user:
+### OAuth configuration
+
+For social login you must provide OAuth client IDs and secrets. Set them as environment variables or in `application.properties` before starting the app. Example variables for Google:
+
+```
+spring.security.oauth2.client.registration.google.client-id=YOUR_CLIENT_ID
+spring.security.oauth2.client.registration.google.client-secret=YOUR_SECRET
+spring.security.oauth2.client.registration.google.scope=openid,email,profile
+```
+
+Replace `google` with `github` or `apple` for the other providers.
+
+## Usage
+
+### Register
+
+`POST /auth/register`
 
 ```bash
 curl -X POST http://localhost:8080/auth/register \
@@ -42,7 +55,9 @@ curl -X POST http://localhost:8080/auth/register \
   -d '{"username":"demo","password":"secret"}'
 ```
 
-And to log in and receive a token:
+### Login
+
+`POST /auth/login`
 
 ```bash
 curl -X POST http://localhost:8080/auth/login \
@@ -50,47 +65,18 @@ curl -X POST http://localhost:8080/auth/login \
   -d '{"username":"demo","password":"secret"}'
 ```
 
-## API Endpoints
+Successful logins return a JSON body containing `access_token`.
 
-### Register
+### Social login
 
-`POST /auth/register`
+Initiate the flow by visiting one of
 
-Example body:
+- `/oauth/google/login`
+- `/oauth/apple/login`
+- `/oauth/github/login`
 
-```json
-{
-  "username": "user1",
-  "password": "strong-password"
-}
-```
-
-### Login
-
-`POST /auth/login`
-
-Example body:
-
-```json
-{
-  "username": "user1",
-  "password": "strong-password"
-}
-```
-
-Successful responses include an `access_token`.
-
-### Social OAuth (placeholders)
-
-- `GET /oauth/google/login`
-- `GET /oauth/apple/login`
-- `GET /oauth/github/login`
-
-Each provider exposes a corresponding `/callback` endpoint.
-
-The OAuth routes are placeholders and simply return a message. Replace them with
-real integrations if you need social logins in your deployment.
+On successful authentication a JWT token is returned.
 
 ## Notes
 
-This example stores users in memory and is not meant for production. Add persistent storage and real OAuth integrations before deploying.
+This service is for demonstration only and does not use persistent storage. OAuth credentials should be kept secure and never committed to version control.
